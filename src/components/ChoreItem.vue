@@ -1,13 +1,15 @@
 <template>
   <span class="chore-wrap">
-    <label :for="id" class="chore">
-    {{chore.title}} - <strong>{{people}}</strong>
-    </label>
-    <div class="chore-details" title="details">
-        <div>
-            <InfoCircle />
-        </div>
-    </div>
+    <g-link :to="chore.path">
+      <label :for="id" class="chore">
+      {{chore.title}} - <strong>{{people}}</strong>
+      </label>
+      <div class="chore-details" title="details">
+          <div>
+              <InfoCircle />
+          </div>
+      </div>
+    </g-link>
   </span>
 </template>
 
@@ -25,6 +27,10 @@ export default {
 </script>
 
 <style scoped>
+a, a:visited {
+  color: black;
+}
+
 .chore-wrap{
     display:block;
     position:relative;
@@ -35,17 +41,6 @@ export default {
 }
 .chore-wrap:last-of-type{
     box-shadow:none;
-}
-input[type="checkbox"]{
-    position:absolute;
-    height:0;
-    width:0;
-    opacity:0;
-    top:-600px;
-}
-.checknext {
-    text-align: left;
-    cursor: pointer;
 }
 .chore{
     display:inline-block;
@@ -68,52 +63,6 @@ input[type="checkbox"]{
     background:#cd4400;
     transition:.25s ease-in-out;
     cursor: pointer;
-}
-.checkmark:after{
-    content:'';
-    display:block;
-    position:absolute;
-    z-index:0;
-    height:18px;
-    width:18px;
-    top:20px;
-    left:12px;
-    box-shadow:inset 0 0 0 2px #d8d8d8;
-    transition:.25s ease-in-out;
-    border-radius:4px;
-    cursor: pointer;
-}
-.checkmark:hover:after{
-    box-shadow:inset 0 0 0 2px #949494;
-    cursor: pointer;
-}
-.checkmark svg{
-    position:absolute;
-    z-index:1;
-    left:15px;
-    top:20px;
-    font-size:1px;
-    line-height:16px;
-    width:16px;
-    height:16px;
-    text-align:center;
-    color:transparent;
-    text-shadow:1px 1px 0 white, -1px -1px 0 white;
-    cursor: pointer;
-}
-:checked + .checknext .chore{
-    color:#717171;
-}
-:checked + .checknext .chore:before{
-    width:100%;
-}
-:checked + .checknext .checkmark:after{
-    box-shadow:inset 0 0 0 2px #0eb0b7;
-}
-:checked + .checknext .checkmark svg{
-    font-size:20px;
-    line-height:35px;
-    color:#0eb0b7;
 }
 
 /* Details Link */

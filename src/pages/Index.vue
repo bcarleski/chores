@@ -58,7 +58,7 @@ export default {
 query {
   chores: allChores {
     edges {
-      node { title id people }
+      node { title id people path }
     }
   }
 }

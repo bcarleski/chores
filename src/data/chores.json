@@ -2,10 +2,10 @@
     {	"title":"Family Room / Back Hallway",
         "id":"family-room",
         "people": ["George", "Phineas"],
-        "tasks":[
+        "schedules":[
             {	"title":"Daily",
                 "id":"daily",
-                "subTasks":[
+                "tasks":[
                     "Pick up family room",
                     "Sweep and vacuum back hallway",
                     "Sweep and vacuum family room",
@@ -18,7 +18,7 @@
             },
             {	"title":"Weekly",
                 "id":"weekly",
-                "subTasks":[
+                "tasks":[
                     "Vacuum edges of all walls using wand",
                     "Mop back hallway",
                     "Wipe down window and TV",
@@ -31,11 +31,11 @@
     {	"title":"Hallways",
         "id":"hallways",
         "people": ["Calvin"],
-        "tasks":[
+        "schedules":[
             {
                 "title":"Daily",
                 "id":"daily",
-                "subTasks":[
+                "tasks":[
                     "Sweep and vacuum the front hallway",
                     "Vacuum the staircase",
                     "Put away everything on hallway bench",
@@ -45,14 +45,14 @@
             },
             {	"title":"Tuesday / Thursday / Saturday",
                 "id":"tue-thu-sat",
-                "subTasks":[
+                "tasks":[
                     "Take all recycling to the outside cans"
                 ]
             },
             {
                 "title":"Weekly",
                 "id":"weekly",
-                "subTasks":[
+                "tasks":[
                     "Vacuum edges of all walls using wand",
                     "Move, clean, and vacuum under hallway bench",
                     "Mop downstairs hallway floor",
@@ -68,10 +68,10 @@
     {	"title":"Living Room / Dining Room",
         "id":"living-dining",
         "people": ["Robert"],
-        "tasks":[
+        "schedules":[
             {	"title":"Daily",
                 "id":"daily",
-                "subTasks":[
+                "tasks":[
                     "Sweep and vacuum the living room floor",
                     "Sweep and vacuum the dining room floor",
                     "Wipe down dining room table and chairs"
@@ -79,7 +79,7 @@
             },
             {	"title":"Weekly",
                 "id":"weekly",
-                "subTasks":[
+                "tasks":[
                     "Vacuum edges of all walls using wand",
                     "Mop living room floor",
                     "Mop dining room floor",
@@ -96,10 +96,10 @@
     {	"title":"Bathrooms / Laundry",
         "id":"bathrooms",
         "people": ["Kristopher", "Caroline"],
-        "tasks":[
+        "schedules":[
             {	"title":"Daily",
                 "id":"daily",
-                "subTasks":[
+                "tasks":[
                     "Wipe off counter tops",
                     "Clean out sink",
                     "Clean top of back of toilet",
@@ -116,14 +116,14 @@
             },
             {	"title":"Tuesday / Thursday / Saturday",
                 "id":"tue-thu-sat",
-                "subTasks":[
+                "tasks":[
                     "Collect all the trash from the kitchen, bathrooms, and parent's room",
                     "Take trash to the outside cans"
                 ]
             },
             {	"title":"Weekly",
                 "id":"weekly",
-                "subTasks":[
+                "tasks":[
                     "Clean mirrors",
                     "Scrub out toilet bowl with cleaner and brush",
                     "Wipe down cabinet doors",
@@ -139,11 +139,11 @@
     {	"title":"Kitchen",
         "id":"kitchen",
         "people": ["Robert"],
-        "tasks":[
+        "schedules":[
             {
                 "title":"Daily",
                 "id":"daily",
-                "subTasks":[
+                "tasks":[
                     "Empty the dishwasher in the morning",
                     "Rinse ALL dishes so no food is visible",
                     "Load a load of dishes into dishwasher",
@@ -157,7 +157,7 @@
             {
                 "title":"Weekly",
                 "id":"weekly",
-                "subTasks":[
+                "tasks":[
                     "Clean fronts and shelves of cabinets",
                     "Clean counters, including under and behind appliances",
                     "Wipe down all appliances",
