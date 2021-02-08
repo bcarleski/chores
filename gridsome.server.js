@@ -4,22 +4,18 @@
 
 // Changes here require a server restart.
 // To restart press CTRL + C in terminal and run `gridsome develop`
+const axios = require('axios')
 
 module.exports = function (api) {
   api.loadSource(async ({ addCollection }) => {
     // Use the Data Store API here: https://gridsome.org/docs/data-store-api/
-    addJson(addCollection, './src/data/chores.json', 'Chores')
-    addJson(addCollection, './src/data/people.json', 'Persons')
+    const { data } = await axios.get(process.env.CHORES_DATA_URL)
+    const collection = addCollection({typeName:'Chores'})
+  
+    for (const item of data) collection.addNode(item)
   })
 
   api.createPages(({ createPage }) => {
     // Use the Pages API here: https://gridsome.org/docs/pages-api/
   })
-}
-
-function addJson(addCollection, jsonPath, typeName) {
-  const data = require(jsonPath)
-  const collection = addCollection({typeName})
-
-  for (const item of data) collection.addNode(item)
 }

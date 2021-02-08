@@ -2,7 +2,7 @@
   <span class="chore-wrap">
     <g-link :to="chore.path">
       <label :for="id" class="chore">
-      {{chore.title}} - <strong>{{people}}</strong>
+      {{chore.title}}<br /><strong>{{people}}</strong>
       </label>
       <div class="chore-details" title="details">
           <div>
@@ -47,7 +47,6 @@ a, a:visited {
     font-weight:200;
     font-size:18px;
     padding:20px 5px;
-    height:18px;
     position:relative;
     vertical-align: middle;
     cursor: pointer;
@@ -73,7 +72,7 @@ a, a:visited {
     width:100px;
     line-height:36px;
     right:0;
-    top:12px;
+    top:30px;
     text-align:right;
     color:#d8d8d8;
     cursor: pointer;

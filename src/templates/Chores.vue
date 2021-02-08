@@ -12,6 +12,11 @@
             <div class="attribute-item">
                 <div class="header">Assigned To:</div>
                 <div class="simple-detail">{{people}}</div>
+                <div>
+                    <GoogleLogin v-show="!loggedIn" :params="googleParams" :renderParams="googleRender" :onSuccess="googleLogin"></GoogleLogin>
+                    <GoogleLogin v-show="loggedIn" :params="googleParams" :logoutButton="true" :onSuccess="googleLogout">Logout</GoogleLogin>
+                    <a v-show="loggedIn" :href="completeUrl"><button>Mark Complete</button></a>
+                </div>
             </div>
         </div>
         <Schedule v-for="schedule in $page.chore.schedules" :key="schedule.id" :schedule="schedule" />
@@ -21,13 +26,41 @@
 
 <script>
 import ChevronLeft from '../components/ChevronLeft'
+import GoogleLogin from 'vue-google-login'
 import Schedule from '../components/Schedule'
 export default {
-  components: { ChevronLeft, Schedule },
+  components: { ChevronLeft, GoogleLogin, Schedule },
   computed: {
     people: function () {
       return (this.$page.chore.people || []).join(', ')
+    },
+    completeUrl: function () {
+        return process.env.GRIDSOME_API_COMPLETE_URL + '?id=' + this.$page.chore.id + '&token=' + this.authToken
     }
+  },
+  data: function() {
+      return {
+          loggedIn: false,
+          authToken: null,
+          googleParams: {
+              client_id: process.env.GRIDSOME_API_CHORES_GOOGLE_AUTH_CLIENT_ID
+          },
+          googleRender: {
+              width: 250,
+              height: 50,
+              longtitle: true
+          }
+      }
+  },
+  methods: {
+      googleLogin: function(user) {
+          this.authToken = user.getAuthResponse().id_token
+          this.loggedIn = true
+      },
+      googleLogout: function() {
+          this.loggedIn = false
+          this.authToken = null
+      }
   }
 }
 </script>
@@ -74,6 +107,14 @@ export default {
 .attribute-item .simple-detail {
     display: inline-block;
     text-align: left;
+}
+
+button {
+    padding: 8px 12px;
+    font-size: 18px;
+    top: 8px;
+    left: 45px;
+    position: relative;
 }
 </style>
 
