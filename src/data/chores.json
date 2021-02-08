@@ -67,7 +67,7 @@
     },
     {	"title":"Living Room / Dining Room",
         "id":"living-dining",
-        "people": ["Kristopher"],
+        "people": ["Robert"],
         "tasks":[
             {	"title":"Daily",
                 "id":"daily",
