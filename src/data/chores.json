@@ -1,0 +1,171 @@
+[
+    {	"title":"Family Room / Back Hallway",
+        "id":"family-room",
+        "people": ["George", "Phineas"],
+        "tasks":[
+            {	"title":"Daily",
+                "id":"daily",
+                "subTasks":[
+                    "Pick up family room",
+                    "Sweep and vacuum back hallway",
+                    "Sweep and vacuum family room",
+                    "Wipe down TV stand",
+                    "Dust piano",
+                    "Pick up library closet",
+                    "Move couch, clean underneath",
+                    "Take off cushions, clean underneath"
+                ]
+            },
+            {	"title":"Weekly",
+                "id":"weekly",
+                "subTasks":[
+                    "Vacuum edges of all walls using wand",
+                    "Mop back hallway",
+                    "Wipe down window and TV",
+                    "Pick up, arrange, and clean library",
+                    "Wipe down doors in the family room"
+                ]
+            }
+        ]
+    },
+    {	"title":"Hallways",
+        "id":"hallways",
+        "people": ["Calvin"],
+        "tasks":[
+            {
+                "title":"Daily",
+                "id":"daily",
+                "subTasks":[
+                    "Sweep and vacuum the front hallway",
+                    "Vacuum the staircase",
+                    "Put away everything on hallway bench",
+                    "Move and sweep under hallway bench",
+                    "Sweep and vacuum the upstairs hallway"
+                ]
+            },
+            {	"title":"Tuesday / Thursday / Saturday",
+                "id":"tue-thu-sat",
+                "subTasks":[
+                    "Take all recycling to the outside cans"
+                ]
+            },
+            {
+                "title":"Weekly",
+                "id":"weekly",
+                "subTasks":[
+                    "Vacuum edges of all walls using wand",
+                    "Move, clean, and vacuum under hallway bench",
+                    "Mop downstairs hallway floor",
+                    "Mop upstairs hallway floor",
+                    "Wipe down walls",
+                    "Wipe down front door and sliding glass door",
+                    "Clean out front closet",
+                    "Scrub out recycling cabinet"
+                ]
+            }
+        ]
+    },
+    {	"title":"Living Room / Dining Room",
+        "id":"living-dining",
+        "people": ["Kristopher"],
+        "tasks":[
+            {	"title":"Daily",
+                "id":"daily",
+                "subTasks":[
+                    "Sweep and vacuum the living room floor",
+                    "Sweep and vacuum the dining room floor",
+                    "Wipe down dining room table and chairs"
+                ]
+            },
+            {	"title":"Weekly",
+                "id":"weekly",
+                "subTasks":[
+                    "Vacuum edges of all walls using wand",
+                    "Mop living room floor",
+                    "Mop dining room floor",
+                    "Clean window seat",
+                    "Clean playsets",
+                    "Move and clean out under couch",
+                    "Take off couch cushions and vacuum",
+                    "Clean out under couch cushions",
+                    "Wipe down front door and sliding glass door"
+                ]
+            }
+        ]
+    },
+    {	"title":"Bathrooms / Laundry",
+        "id":"bathrooms",
+        "people": ["Kristopher", "Caroline"],
+        "tasks":[
+            {	"title":"Daily",
+                "id":"daily",
+                "subTasks":[
+                    "Wipe off counter tops",
+                    "Clean out sink",
+                    "Clean top of back of toilet",
+                    "Clean top of toilet seat",
+                    "Clean underside of the toilet seat",
+                    "Clean top of bowl under the toilet seat",
+                    "Clean the base of the toilet",
+                    "Sweep the floor",
+                    "Pick up laundry room",
+                    "Clear off tops of washer/dryer",
+                    "Clean between washer/dryer and walls",
+                    "Sweep laundry room floor"
+                ]
+            },
+            {	"title":"Tuesday / Thursday / Saturday",
+                "id":"tue-thu-sat",
+                "subTasks":[
+                    "Collect all the trash from the kitchen, bathrooms, and parent's room",
+                    "Take trash to the outside cans"
+                ]
+            },
+            {	"title":"Weekly",
+                "id":"weekly",
+                "subTasks":[
+                    "Clean mirrors",
+                    "Scrub out toilet bowl with cleaner and brush",
+                    "Wipe down cabinet doors",
+                    "Sweep and mop floors, including under counters",
+                    "Wipe down walls and both sides of bathroom doors",
+                    "Mop laundry room floors",
+                    "Wipe down washer/dryer",
+                    "Scrub kitchen cabinet wall and floor behind garbage can"
+                ]
+            }
+        ]
+    },
+    {	"title":"Kitchen",
+        "id":"kitchen",
+        "people": ["Robert"],
+        "tasks":[
+            {
+                "title":"Daily",
+                "id":"daily",
+                "subTasks":[
+                    "Empty the dishwasher in the morning",
+                    "Rinse ALL dishes so no food is visible",
+                    "Load a load of dishes into dishwasher",
+                    "Add detergent, and start dishwasher in the evening",
+                    "Wipe out sink",
+                    "Remove everything from counters that doesn't go there",
+                    "Wipe down counters, including under and behind appliances",
+                    "Sweep the floor"
+                ]
+            },
+            {
+                "title":"Weekly",
+                "id":"weekly",
+                "subTasks":[
+                    "Clean fronts and shelves of cabinets",
+                    "Clean counters, including under and behind appliances",
+                    "Wipe down all appliances",
+                    "Scrub out and disinfect sink",
+                    "Scrub microwave, inside and out",
+                    "Mop the floor"
+                ]
+            }
+        ]
+    }
+]
