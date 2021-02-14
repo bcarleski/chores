@@ -35,3 +35,4 @@ jobs:
           aws_region: us-west-2
           function_name: markChoreComplete
           zip_file: bundle.zip
+          dry_run: true
