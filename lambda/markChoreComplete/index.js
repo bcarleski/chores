@@ -37,7 +37,6 @@ exports.handler = async (event) => {
 
     for (var i = 0; i < chores.length; i++) {
         let chore = chores[i]
-        if (chore.id !== choreId) continue
 
         const reg = ((chores.length - (offset % chores.length)) + i) % chores.length
         const rev = (offset + i + 4) % chores.length
@@ -46,10 +45,13 @@ exports.handler = async (event) => {
         if (regular.length > reg && regular[reg]) assigningTo.push(regular[reg])
         if (reversed.length > rev && reversed[rev]) assigningTo.push(reversed[rev])
 
-        reason = 'Completed chore ' + chore.title + ' assigned to ' + (chore.people || []).join(', ') + ' and assigning it to ' + assigningTo.join(', ')
+        chore.expected = assigningTo
+        if (chore.id !== choreId) continue
+
+        reason = user + ' marked chore ' + chore.title + ' assigned to ' + (chore.people || []).join(', ') + ' as complete and so we are assigning it to ' + assigningTo.join(', ')
         console.log(reason)
+        chore.last = user + ' marked chore as completed by ' + (chore.people || []).join(' and ') + ' on ' + (new Date());
         chore.people = assigningTo
-        break
     }
     
     if (!reason) {
@@ -65,13 +67,5 @@ exports.handler = async (event) => {
         return { statusCode: 500, body: '"An unexpected error occurred"' }
     }
 
-    try {
-        const result = await amplify.startJob({appId:'d2efoirdhd8i2j', branchName:'main', jobType: 'RELEASE', jobReason: reason}).promise()
-        console.log('Initiated a new Amplify job: ' + JSON.stringify(result))
-    } catch (error) {
-        console.log('Could not initiate a new Amplify build: ' + error)
-        return { statusCode: 500, body: '"An unexpected error occurred"' }
-    }
-
-    return { statusCode: 200, body: JSON.stringify(reason) }
+    return { statusCode: 200, body: '<html><head><title>Success</title></head><body><h1>Success</h1><p>' + reason + '</p></body></html>' }
 }
