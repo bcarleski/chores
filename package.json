@@ -9,6 +9,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "gridsome": "^0.7.0",
+    "gridsome-plugin-pwa": "0.0.18",
     "vue-google-login": "^2.0.5"
   }
 }
