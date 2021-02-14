@@ -22,12 +22,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: zip
+      - name: Install ZIP
         uses: montudor/action-zip@v0.1.0
-        with:
-          args: zip -qq -r ./bundle.zip ./lambda/markChoreComplete/
+      
+      - name: Create Package
+        run: zip -qq -r ./../../bundle.zip ./
+        working-directory: ./lambda/markChoreComplete/
 
-      - name: default deploy
+      - name: Deploy Updated Code
         uses: appleboy/lambda-action@master
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
