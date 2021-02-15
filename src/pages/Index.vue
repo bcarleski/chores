@@ -4,7 +4,7 @@
       <div>
         <h1>Current Chore List</h1>
         <div class="chore-list">
-          <ChoreItem v-for="chore in $page.chores.edges" :key="chore.node.id" :chore="chore.node" />
+          <ChoreItem v-for="chore in chores" :key="chore.id" :chore="chore" />
         </div>
       </div>
     </div>
@@ -13,6 +13,8 @@
 
 <script>
 import ChoreItem from '../components/ChoreItem'
+import axios from 'axios'
+
 export default {
   components: { ChoreItem },
   data: function() {
@@ -22,6 +24,40 @@ export default {
   },
   metaInfo: {
     title: 'Carleski Chore Chart'
+  },
+  methods: {
+    async updateData() {
+      try {
+        const results = await axios.get(process.env.GRIDSOME_API_CHORES_DATA_URL + '?v=' + Date.now())
+        this.chores = results.data
+        if (localStorage) localStorage.carleskiChores = JSON.stringify(results.data)
+      } catch (e) {
+        console.log('Could not retrieve updated chores - ' + e)
+      }
+
+      const chores = this.chores
+      const pages = this.$page.chores.edges
+      for (let i = 0; i < chores.length; i++) {
+        const chore = chores[i]
+        const page = pages.find(x => x.node.id === chore.id)
+        if (page) chore.path = page.node.path
+      }
+    }
+  },
+  async mounted () {
+    if (localStorage && localStorage.carleskiChores) {
+      try {
+        this.chores = JSON.parse(localStorage.carleskiChores)
+      } catch (e) {
+        console.log('Could not get chores from local storage - ' + e)
+      }
+    }
+
+    await this.updateData()
+  },
+  async beforeRouteUpdate(to, from, next) {
+    await this.updateData()
+    next()
   }
 }
 </script>
@@ -58,7 +94,7 @@ export default {
 query {
   chores: allChores {
     edges {
-      node { title id people path }
+      node { id path }
     }
   }
 }

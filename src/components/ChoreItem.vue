@@ -1,7 +1,7 @@
 <template>
   <span class="chore-wrap">
     <g-link :to="chore.path">
-      <label :for="id" class="chore">
+      <label :for="chore.id" class="chore">
       {{chore.title}}<br /><strong>{{people}}</strong>
       </label>
       <div class="chore-details" title="details">

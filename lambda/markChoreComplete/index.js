@@ -11,17 +11,18 @@ const key = 'chores.json'
 
 exports.handler = async (event) => {
     const choreId = ((event || {}).queryStringParameters || {}).id
+    const revert = ((event || {}).queryStringParameters || {}).revert
     const user = (((((event || {}).requestContext || {}).authorizer || {}).jwt || {}).claims || {}).email
     console.log('Received request to complete ' + choreId + ' by ' + user)
 
     if (validUsers.indexOf(user) < 0) {
         console.log('Not a valid user requesting completion')
-        return { statusCode: 401, body: '"Invalid user"' }
+        return { statusCode: 200, body: '{"success":false,"error":"You are not allowed to update chore data"}' }
     }
 
     if (typeof choreId !== 'string') {
         console.log('Missing or invalid ID')
-        return { statusCode: 400, body: '"Invalid or missing id"' }
+        return { statusCode: 200, body: '{"success":false,"error":"Invalid or missing chore ID"}' }
     }
 
     try {
@@ -29,7 +30,7 @@ exports.handler = async (event) => {
         var chores = JSON.parse(content.Body)
     } catch (error) {
         console.log('Could not retrieve or parse the chores: ' + error)
-        return { statusCode: 500, body: '"An unexpected error occurred"' }
+        return { statusCode: 200, body: '{"success":false,"error":"Could not retrieve the chore data"}' }
     }
 
     const offset = Math.floor((Date.now() - baseDate) / oneWeek)
@@ -48,15 +49,26 @@ exports.handler = async (event) => {
         chore.expected = assigningTo
         if (chore.id !== choreId) continue
 
-        reason = user + ' marked chore ' + chore.title + ' assigned to ' + (chore.people || []).join(', ') + ' as complete and so we are assigning it to ' + assigningTo.join(', ')
+        if (revert && (revert === true || revert === "true")) {
+            if (!chore.previous) continue
+
+            assigningTo = chore.previous
+            delete chore.previous
+            reason = user + ' reverted chore ' + chore.title + ' assigned to ' + (chore.people || []).join(', ') + ', sending it back to ' + assigningTo.join(', ')
+            chore.history = user + ' marked chore as not completed, and sent back to ' + (assigningTo || []).join(' and ') + ' on ' + (new Date());
+        } else {
+            reason = user + ' marked chore ' + chore.title + ' assigned to ' + (chore.people || []).join(', ') + ' as complete and so we are assigning it to ' + assigningTo.join(', ')
+            chore.previous = chore.people
+            chore.history = user + ' marked chore as completed by ' + (chore.people || []).join(' and ') + ' on ' + (new Date());
+        }
+
         console.log(reason)
-        chore.last = user + ' marked chore as completed by ' + (chore.people || []).join(' and ') + ' on ' + (new Date());
         chore.people = assigningTo
     }
     
     if (!reason) {
         console.log('Could not find a chore with ID=' + choreId)
-        return { statusCode: 200, body: '"No changes"' }
+        return { statusCode: 200, body: '{"success":false,"error":"No changes"}' }
     }
     
     try {
@@ -64,8 +76,8 @@ exports.handler = async (event) => {
         console.log('Updated the chores')
     } catch (error) {
         console.log('Could not update the chores: ' + error)
-        return { statusCode: 500, body: '"An unexpected error occurred"' }
+        return { statusCode: 200, body: '{"success":false,"error":"Could not update the chore data"}' }
     }
 
-    return { statusCode: 200, body: '<html><head><title>Success</title></head><body><h1>Success</h1><p>' + reason + '</p></body></html>' }
+    return { statusCode: 200, body: '{"success":true}' }
 }

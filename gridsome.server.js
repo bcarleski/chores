@@ -9,7 +9,7 @@ const axios = require('axios')
 module.exports = function (api) {
   api.loadSource(async ({ addCollection }) => {
     // Use the Data Store API here: https://gridsome.org/docs/data-store-api/
-    const { data } = await axios.get(process.env.CHORES_DATA_URL)
+    const { data } = await axios.get(process.env.GRIDSOME_API_CHORES_DATA_URL)
     const collection = addCollection({typeName:'Chores'})
   
     for (const item of data) collection.addNode(item)
