@@ -16,6 +16,10 @@
                     <div class="header">Expected:</div>
                     <div class="simple-detail">{{expected}}</div>
                 </div>
+                <div v-if="chore.previous">
+                    <div class="header">Previously:</div>
+                    <div class="simple-detail">{{previous}}</div>
+                </div>
                 <div v-if="chore.history">
                     <div class="header">History:</div>
                     <div class="simple-detail">{{chore.history}}</div>
@@ -23,8 +27,8 @@
                 <div>
                     <GoogleLogin v-show="!loggedIn" :params="googleParams" :renderParams="googleRender" :onSuccess="googleLogin"></GoogleLogin>
                     <GoogleLogin v-show="loggedIn" :params="googleParams" :logoutButton="true" :onSuccess="googleLogout">Logout</GoogleLogin>
-                    <button v-if="loggedIn" :click="markComplete" :disabled="markingComplete" class="spaced">Mark Complete</button>
-                    <button v-if="loggedIn && chore.previous" :click="markComplete" :disabled="markingComplete" class="spaced">Mark Not Complete</button>
+                    <button v-if="loggedIn" @click="markComplete(false)" :disabled="markingComplete" class="spaced">Mark Complete</button>
+                    <button v-if="loggedIn && chore.previous" @click="markComplete(true)" :disabled="markingComplete" class="spaced">Mark Not Complete</button>
                     <div v-if="error" class="error">{{error}}</div>
                 </div>
             </div>
@@ -47,6 +51,10 @@ export default {
     },
     expected: function () {
       return (this.chore.expected || []).join(', ')
+    },
+    previous: function () {
+      const prev = this.chore.previous || []
+      return ((prev.length > 0 ? prev[prev.length - 1] : null) || []).join(', ')
     },
     chore: function () {
         const choreId = this.$page.chore.id
@@ -72,17 +80,21 @@ export default {
       }
   },
   methods: {
-      async markComplete () {
+      markComplete: async function (revert) {
           const me = this
           me.error = null
           me.markingComplete = true
 
           try {
-              const params = { id: me.$page.chore.id, token: me.authToken }
+              const params = { id: me.$page.chore.id, token: me.authToken, revert }
               const result = await axios.get(process.env.GRIDSOME_API_COMPLETE_URL, { params })
-              if (result && result.success) await me.updateData()
-              else if (result && result.error) me.error = result.error
-              else me.error = 'Could not mark the chore complete.  An unknown error has occurred'
+              const data = (result || {}).data
+              if (data && data.success)
+                await me.updateData()
+              else if (data && data.error)
+                me.error = data.error
+              else
+                me.error = 'Could not mark the chore complete.  An unknown error has occurred'
           } catch (e) {
               me.error = 'Could not mark complete - ' + error
           }

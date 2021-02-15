@@ -52,14 +52,16 @@ exports.handler = async (event) => {
         if (revert && (revert === true || revert === "true")) {
             if (!chore.previous) continue
 
-            assigningTo = chore.previous
-            delete chore.previous
+            assigningTo = chore.previous.splice(chore.previous.length - 1, 1)
+            if (chore.previous.length === 0) delete chore.previous
             reason = user + ' reverted chore ' + chore.title + ' assigned to ' + (chore.people || []).join(', ') + ', sending it back to ' + assigningTo.join(', ')
-            chore.history = user + ' marked chore as not completed, and sent back to ' + (assigningTo || []).join(' and ') + ' on ' + (new Date());
+            chore.history = user + ' marked the chore as not completed, and sent back to ' + (assigningTo || []).join(' and ') + ' on ' + (new Date());
         } else {
-            reason = user + ' marked chore ' + chore.title + ' assigned to ' + (chore.people || []).join(', ') + ' as complete and so we are assigning it to ' + assigningTo.join(', ')
-            chore.previous = chore.people
-            chore.history = user + ' marked chore as completed by ' + (chore.people || []).join(' and ') + ' on ' + (new Date());
+            reason = user + ' marked the chore ' + chore.title + ' assigned to ' + (chore.people || []).join(', ') + ' as complete and so we are assigning it to ' + assigningTo.join(', ')
+            if (!chore.previous) chore.previous = []
+            chore.previous.push(chore.people)
+            while (chore.previous.length > 5) chore.previous.splice(0, 1)
+            chore.history = user + ' marked the chore as completed by ' + (chore.people || []).join(' and ') + ' on ' + (new Date());
         }
 
         console.log(reason)
