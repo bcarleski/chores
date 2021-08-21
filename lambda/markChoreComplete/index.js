@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk')
 const s3 = new AWS.S3()
 const amplify = new AWS.Amplify()
-const regular = ['Robert','George','Calvin','Ben','Kristopher']
+const regular = ['Abby','George','Calvin','Ben','Kristopher']
 const reversed = ['Phineas', null, null, 'Caroline']
 const validUsers = ['admin@carleski.com', 'benjamincarleski@gmail.com', 'katherine@carleski.com', 'katiecarleski@gmail.com']
 const baseDate = 1609567200000 // Friday, 5-Feb-2021, 10 PM Pacific Time, meaning we switch over if they pass off the chore after 10 PM on Friday night
