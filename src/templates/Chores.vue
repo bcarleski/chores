@@ -35,6 +35,14 @@
         </div>
         <Schedule v-for="schedule in chore.schedules" :key="schedule.id" :schedule="schedule" />
     </div>
+    <div>
+      <h2>Shower Schedule</h2>
+      <div>0600 - 0612: Calvin</div>
+      <div>0612 - 0624: Ben</div>
+      <div>0624 - 0636: George</div>
+      <div>0636 - 0648: Kristopher</div>
+      <div>0648 - 0700: Abby</div>
+    </div>
   </div>
 </template>
 
