@@ -1,28 +1,28 @@
 const AWS = require('aws-sdk')
 const s3 = new AWS.S3()
-const amplify = new AWS.Amplify()
-const regular = ['Abby','George','Calvin','Ben','Kristopher']
-const reversed = ['Phineas', null, null, 'Caroline']
+const regular = ['George','Calvin','Ben','Kristopher','Phineas']
+const reversed = ['Caroline', null, null, null, null]
 const validUsers = ['admin@carleski.com', 'benjamincarleski@gmail.com', 'katherine@carleski.com', 'katiecarleski@gmail.com']
 const baseDate = 1609567200000 // Friday, 5-Feb-2021, 10 PM Pacific Time, meaning we switch over if they pass off the chore after 10 PM on Friday night
 const oneWeek = 7 * 24 * 60 * 60 * 1000
 const bucket = 'chores-data'
 const key = 'chores.json'
 
-exports.handler = async (event) => {
-    const choreId = ((event || {}).queryStringParameters || {}).id
-    const revert = ((event || {}).queryStringParameters || {}).revert
-    const user = (((((event || {}).requestContext || {}).authorizer || {}).jwt || {}).claims || {}).email
-    console.log('Received request to complete ' + choreId + ' by ' + user)
+async function computeChores(user, choreId, preview, revert, asOfDate) {
+    if (!preview) {
+        console.log('Received request to complete ' + choreId + ' by ' + user)
 
-    if (validUsers.indexOf(user) < 0) {
-        console.log('Not a valid user requesting completion')
-        return { statusCode: 200, body: '{"success":false,"error":"You are not allowed to update chore data"}' }
-    }
+        if (validUsers.indexOf(user) < 0) {
+            console.log('Not a valid user requesting completion')
+            return { statusCode: 200, body: '{"success":false,"error":"You are not allowed to update chore data"}' }
+        }
 
-    if (typeof choreId !== 'string') {
-        console.log('Missing or invalid ID')
-        return { statusCode: 200, body: '{"success":false,"error":"Invalid or missing chore ID"}' }
+        if (typeof choreId !== 'string') {
+            console.log('Missing or invalid ID')
+            return { statusCode: 200, body: '{"success":false,"error":"Invalid or missing chore ID"}' }
+        }
+    } else {
+        console.log('Received preview request')
     }
 
     try {
@@ -33,7 +33,8 @@ exports.handler = async (event) => {
         return { statusCode: 200, body: '{"success":false,"error":"Could not retrieve the chore data"}' }
     }
 
-    const offset = Math.floor((Date.now() - baseDate) / oneWeek)
+    const offset = Math.floor((asOfDate - baseDate) / oneWeek)
+    const expectedMap = {}
     var reason = null
 
     for (var i = 0; i < chores.length; i++) {
@@ -46,10 +47,11 @@ exports.handler = async (event) => {
         if (regular.length > reg && regular[reg]) assigningTo.push(regular[reg])
         if (reversed.length > rev && reversed[rev]) assigningTo.push(reversed[rev])
 
+        expectedMap[chore.id] = assigningTo
         chore.expected = assigningTo
-        if (chore.id !== choreId) continue
+        if (preview || chore.id !== choreId) continue
 
-        if (revert && (revert === true || revert === "true")) {
+        if (revert) {
             if (!chore.previous) continue
 
             assigningTo = chore.previous.splice(chore.previous.length - 1, 1)
@@ -68,18 +70,35 @@ exports.handler = async (event) => {
         chore.people = assigningTo
     }
     
-    if (!reason) {
-        console.log('Could not find a chore with ID=' + choreId)
-        return { statusCode: 200, body: '{"success":false,"error":"No changes"}' }
-    }
-    
-    try {
-        await s3.putObject({Bucket:bucket, Key:key, Body: JSON.stringify(chores), ContentType: 'application/json'}).promise()
-        console.log('Updated the chores')
-    } catch (error) {
-        console.log('Could not update the chores: ' + error)
-        return { statusCode: 200, body: '{"success":false,"error":"Could not update the chore data"}' }
-    }
+    if (!preview) {
+        if (!reason) {
+            console.log('Could not find a chore with ID=' + choreId)
+            return { statusCode: 200, body: '{"success":false,"error":"No changes"}' }
+        }
 
-    return { statusCode: 200, body: '{"success":true}' }
+        try {
+            await s3.putObject({Bucket:bucket, Key:key, Body: JSON.stringify(chores), ContentType: 'application/json'}).promise()
+            console.log('Updated the chores')
+        } catch (error) {
+            console.log('Could not update the chores: ' + error)
+            return { statusCode: 200, body: '{"success":false,"error":"Could not update the chore data"}' }
+        }
+
+        return { statusCode: 200, body: '{"success":true}' }
+    } else {
+        return { statusCode: 200, body: JSON.stringify(expectedMap) }
+    }
+}
+
+exports.handler = async (event) => {
+    const evt = event || {}
+    const user = ((((evt.requestContext || {}).authorizer || {}).jwt || {}).claims || {}).email
+    const query = evt.queryStringParameters || {}
+    const choreId = query.id
+    const preview = query.preview === 'true' || query.preview === true ? true : false
+    const revert = query.revert === 'true' || query.revert === true ? true : false
+    const asOfInt = parseInt(query.asOfDate)
+    const asOfDate = query.asOfDate && isFinite(asOfInt) ? asOfInt : Date.now()
+
+    return await computeChores(user, choreId, preview, revert, asOfDate)
 }
