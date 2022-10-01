@@ -99,7 +99,7 @@ exports.handler = async (event) => {
     const preview = query.preview === 'true' || query.preview === true ? true : false
     const revert = query.revert === 'true' || query.revert === true ? true : false
     let asOfInt = parseInt(query.asOfDate)
-    if (!isFinite(asOfInt) && query.asOfDate) {
+    if (!isFinite(query.asOfDate) && query.asOfDate) {
         asOfInt = new Date(query.asOfDate).getTime()
     }
     const asOfDate = asOfInt && isFinite(asOfInt) ? asOfInt : Date.now()

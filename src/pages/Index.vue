@@ -8,6 +8,9 @@
         </div>
       </div>
     </div>
+    <div class="revision">
+      v20220930.2351
+    </div>
   </Layout>
 </template>
 
@@ -69,6 +72,14 @@ export default {
     margin-left: auto;
     margin-right: auto;
     font-size: 18px;
+}
+
+.revision {
+  position: absolute;
+  bottom: 10px;
+  font-size: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .change-week {

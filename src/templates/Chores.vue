@@ -50,7 +50,7 @@ export default {
       return (this.chore.people || []).join(', ')
     },
     expected: function () {
-      const expected = (this.expected || {})[this.chore.id]
+      const expected = (this.expectedMap || {})[this.chore.id]
       return (expected || this.chore.expected || []).join(', ')
     },
     previous: function () {
@@ -68,7 +68,7 @@ export default {
           loggedIn: false,
           authToken: null,
           chores: [],
-          expected: {},
+          expectedMap: {},
           markingComplete: false,
           error: null,
           googleParams: {
@@ -111,13 +111,13 @@ export default {
         } catch (e) {
             console.log('Could not retrieve updated chores - ' + e)
         } finally {
-            await updateExpected()
+            await this.updateExpected()
         }
       },
       async updateExpected() {
         try {
             const results = await axios.get(process.env.GRIDSOME_API_EXPECTED_URL + '?v=' + Date.now())
-            this.expected = results.data
+            this.expectedMap = results.data
             if (localStorage) localStorage.carleskiExpected = JSON.stringify(results.data)
         } catch (e) {
             console.log('Could not retrieve updated expectations - ' + e)
