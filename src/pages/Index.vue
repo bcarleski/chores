@@ -9,7 +9,10 @@
       </div>
     </div>
     <div class="revision">
-      v20220930.2351
+      v{{buildVersion}}
+    </div>
+    <div class="from-dates">
+      Data From: {{dataFrom}}
     </div>
   </Layout>
 </template>
@@ -22,7 +25,9 @@ export default {
   components: { ChoreItem },
   data: function() {
     return {
-      chores: []
+      chores: [],
+      buildVersion: '20221001.0039',
+      dataFrom: 'Unknown'
     }
   },
   metaInfo: {
@@ -32,8 +37,12 @@ export default {
     async updateData() {
       try {
         const results = await axios.get(process.env.GRIDSOME_API_CHORES_DATA_URL + '?v=' + Date.now())
+        this.dataFrom = new Date().toLocaleString()
         this.chores = results.data
-        if (localStorage) localStorage.carleskiChores = JSON.stringify(results.data)
+        if (localStorage) {
+          localStorage.carleskiChores = JSON.stringify(results.data)
+          localStorage.carleskiChoresFrom = this.dataFrom
+        }
       } catch (e) {
         console.log('Could not retrieve updated chores - ' + e)
       }
@@ -55,6 +64,16 @@ export default {
         console.log('Could not get chores from local storage - ' + e)
       }
     }
+
+    if (localStorage && localStorage.carleskiChoresFrom) {
+      try {
+        this.dataFrom = localStorage.carleskiChoresFrom
+      } catch (e) {
+        console.log('Could not get chores date from local storage - ' + e)
+      }
+    }
+
+    this.buildVersion = this.$page.customMetadata.edges[0].node.buildVersion
 
     await this.updateData()
   },
@@ -78,8 +97,13 @@ export default {
   position: absolute;
   bottom: 10px;
   font-size: 10px;
-  margin-left: auto;
-  margin-right: auto;
+}
+
+.from-dates {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 9px;
 }
 
 .change-week {
@@ -106,6 +130,11 @@ query {
   chores: allChores {
     edges {
       node { id path }
+    }
+  }
+  customMetadata: allCustomMetadata {
+    edges {
+      node { buildVersion }
     }
   }
 }

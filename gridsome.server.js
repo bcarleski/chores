@@ -13,6 +13,13 @@ module.exports = function (api) {
     const collection = addCollection({typeName:'Chores'})
   
     for (const item of data) collection.addNode(item)
+
+    const customMetadata = addCollection({typeName:'CustomMetadata'})
+    const buildVersion = new Date().toISOString().replace(/[^0-9T]/g, '').replace('T', '.')
+
+    customMetadata.addNode({
+      buildVersion
+    })
   })
 
   api.createPages(({ createPage }) => {

@@ -35,6 +35,14 @@
         </div>
         <Schedule v-for="schedule in chore.schedules" :key="schedule.id" :schedule="schedule" />
     </div>
+    <div class="from-dates">
+      <div>
+        Data As Of: {{dataFrom}}
+      </div>
+      <div>
+        Expectations As Of: {{expectedFrom}}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -69,6 +77,8 @@ export default {
           authToken: null,
           chores: [],
           expectedMap: {},
+          dataFrom: 'Unknown',
+          expectedFrom: 'Unknown',
           markingComplete: false,
           error: null,
           googleParams: {
@@ -106,8 +116,12 @@ export default {
       async updateData() {
         try {
             const results = await axios.get(process.env.GRIDSOME_API_CHORES_DATA_URL + '?v=' + Date.now())
+            this.dataFrom = new Date().toLocaleString()
             this.chores = results.data
-            if (localStorage) localStorage.carleskiChores = JSON.stringify(results.data)
+            if (localStorage) {
+              localStorage.carleskiChores = JSON.stringify(results.data)
+              localStorage.carleskiChoresFrom = this.dataFrom
+            }
         } catch (e) {
             console.log('Could not retrieve updated chores - ' + e)
         } finally {
@@ -115,12 +129,18 @@ export default {
         }
       },
       async updateExpected() {
+        const url = process.env.GRIDSOME_API_EXPECTED_URL
+
         try {
-            const results = await axios.get(process.env.GRIDSOME_API_EXPECTED_URL + '?v=' + Date.now())
+            const results = await axios.get(url + '?v=' + Date.now())
+            this.expectedFrom = new Date().toLocaleString()
             this.expectedMap = results.data
-            if (localStorage) localStorage.carleskiExpected = JSON.stringify(results.data)
+            if (localStorage) {
+              localStorage.carleskiExpected = JSON.stringify(results.data)
+              localStorage.carleskiExpectedFrom = this.expectedFrom
+            }
         } catch (e) {
-            console.log('Could not retrieve updated expectations - ' + e)
+            console.log(`Could not retrieve updated expectations from ${url} - ${e}`)
         }
       },
       googleLogin: function(user) {
@@ -147,11 +167,25 @@ export default {
           console.log('Could not get chores from local storage - ' + e)
         }
       }
+      if (localStorage.carleskiChoresFrom) {
+        try {
+          this.dataFrom = localStorage.carleskiChoresFrom
+        } catch (e) {
+          console.log('Could not get chores date from local storage - ' + e)
+        }
+      }
       if (localStorage.carleskiExpected) {
         try {
-          this.expected = JSON.parse(localStorage.carleskiExpected)
+          this.expectedMap = JSON.parse(localStorage.carleskiExpected)
         } catch (e) {
           console.log('Could not get expectations from local storage - ' + e)
+        }
+      }
+      if (localStorage.carleskiExpectedFrom) {
+        try {
+          this.expectedFrom = localStorage.carleskiExpectedFrom
+        } catch (e) {
+          console.log('Could not get expectations date from local storage - ' + e)
         }
       }
       if (localStorage.authResponse) {
@@ -173,6 +207,10 @@ export default {
 </script>
 
 <style scoped>
+.from-dates {
+  margin-top: 50px;
+  font-size: 9px;
+}
 .detail-item {
     width: 90%;
     max-width: 1200px;
