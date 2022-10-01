@@ -35,14 +35,6 @@
         </div>
         <Schedule v-for="schedule in chore.schedules" :key="schedule.id" :schedule="schedule" />
     </div>
-    <div>
-      <h2>Shower Schedule</h2>
-      <div>0600 - 0612: Calvin</div>
-      <div>0612 - 0624: Ben</div>
-      <div>0624 - 0636: George</div>
-      <div>0636 - 0648: Kristopher</div>
-      <div>0648 - 0700: Abby</div>
-    </div>
   </div>
 </template>
 
@@ -58,7 +50,8 @@ export default {
       return (this.chore.people || []).join(', ')
     },
     expected: function () {
-      return (this.chore.expected || []).join(', ')
+      const expected = (this.expected || {})[this.chore.id]
+      return (expected || this.chore.expected || []).join(', ')
     },
     previous: function () {
       const prev = this.chore.previous || []
@@ -75,6 +68,7 @@ export default {
           loggedIn: false,
           authToken: null,
           chores: [],
+          expected: {},
           markingComplete: false,
           error: null,
           googleParams: {
@@ -116,6 +110,17 @@ export default {
             if (localStorage) localStorage.carleskiChores = JSON.stringify(results.data)
         } catch (e) {
             console.log('Could not retrieve updated chores - ' + e)
+        } finally {
+            await updateExpected()
+        }
+      },
+      async updateExpected() {
+        try {
+            const results = await axios.get(process.env.GRIDSOME_API_EXPECTED_URL + '?v=' + Date.now())
+            this.expected = results.data
+            if (localStorage) localStorage.carleskiExpected = JSON.stringify(results.data)
+        } catch (e) {
+            console.log('Could not retrieve updated expectations - ' + e)
         }
       },
       googleLogin: function(user) {
@@ -140,6 +145,13 @@ export default {
           this.chores = JSON.parse(localStorage.carleskiChores)
         } catch (e) {
           console.log('Could not get chores from local storage - ' + e)
+        }
+      }
+      if (localStorage.carleskiExpected) {
+        try {
+          this.expected = JSON.parse(localStorage.carleskiExpected)
+        } catch (e) {
+          console.log('Could not get expectations from local storage - ' + e)
         }
       }
       if (localStorage.authResponse) {
