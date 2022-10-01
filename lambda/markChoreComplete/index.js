@@ -86,6 +86,7 @@ async function computeChores(user, choreId, preview, revert, asOfDate) {
 
         return { statusCode: 200, body: '{"success":true}' }
     } else {
+        expectedMap['_asOfDate'] = new Date(asOfDate).toISOString()
         return { statusCode: 200, body: JSON.stringify(expectedMap) }
     }
 }
@@ -97,8 +98,11 @@ exports.handler = async (event) => {
     const choreId = query.id
     const preview = query.preview === 'true' || query.preview === true ? true : false
     const revert = query.revert === 'true' || query.revert === true ? true : false
-    const asOfInt = parseInt(query.asOfDate)
-    const asOfDate = query.asOfDate && isFinite(asOfInt) ? asOfInt : Date.now()
+    let asOfInt = parseInt(query.asOfDate)
+    if (!isFinite(asOfInt) && query.asOfDate) {
+        asOfInt = new Date(query.asOfDate).getTime()
+    }
+    const asOfDate = asOfInt && isFinite(asOfInt) ? asOfInt : Date.now()
 
     return await computeChores(user, choreId, preview, revert, asOfDate)
 }
