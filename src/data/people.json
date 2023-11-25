@@ -1,11 +1,5 @@
 [
     {
-        "name":"George"
-    },
-    {
-        "name":"Calvin"
-    },
-    {
         "name":"Ben"
     },
     {
@@ -15,7 +9,6 @@
         "name":"Phineas"
     },
     {
-        "name":"Caroline",
-        "reverse":true
+        "name":"Caroline"
     }
 ]
