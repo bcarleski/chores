@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk')
 const s3 = new AWS.S3()
-const regular = ['George','Calvin','Ben','Kristopher','Phineas']
-const reversed = ['Caroline', null, null, null, null]
+const regular = ['Ben','Kristopher','Phineas','Caroline']
+const reversed = [null, null, null, null]
 const validUsers = ['admin@carleski.com', 'benjamincarleski@gmail.com', 'katherine@carleski.com', 'katiecarleski@gmail.com']
 const baseDate = 1609567200000 // Friday, 5-Feb-2021, 10 PM Pacific Time, meaning we switch over if they pass off the chore after 10 PM on Friday night
 const oneWeek = 7 * 24 * 60 * 60 * 1000
