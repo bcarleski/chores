@@ -1,30 +1,29 @@
+<script setup lang="ts">
+import type { Chore } from '@/stores/data';
+import { useDataStore } from '@/stores/data';
+import InfoCircle from './icons/InfoCircle.vue';
+
+const store = useDataStore()
+
+defineProps<{
+  chore: Chore
+}>()
+</script>
+
 <template>
   <span class="chore-wrap">
-    <g-link :to="chore.path">
+    <a @click.stop.prevent="store.selectChore(chore.id)">
       <label :for="chore.id" class="chore">
-      {{chore.title}}<br /><strong>{{people}}</strong>
+        {{ chore.title }}<br /><strong>{{ chore.people.join(', ') }}</strong>
       </label>
       <div class="chore-details" title="details">
           <div>
               <InfoCircle />
           </div>
       </div>
-    </g-link>
+    </a>
   </span>
 </template>
-
-<script>
-import InfoCircle from '../components/InfoCircle'
-export default {
-  components: { InfoCircle },
-  props: ['chore'],
-  computed: {
-    people: function() {
-      return (this.chore.people || []).join(', ')
-    }
-  }
-}
-</script>
 
 <style scoped>
 a, a:visited {
