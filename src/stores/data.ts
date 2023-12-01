@@ -3,9 +3,6 @@ import { defineStore } from 'pinia'
 import { decodeCredential, type CallbackTypes, googleLogout } from 'vue3-google-login'
 
 // Structure from https://developers.google.com/identity/gsi/web/reference/js-reference#CredentialResponse
-interface GoogleJwt {
-  readonly payload: GoogleJwtPayload
-}
 interface GoogleJwtPayload {
   readonly iat: number,
   readonly exp: number
@@ -20,8 +17,8 @@ export interface Chore {
   readonly title: string,
   readonly people: string[],
   readonly schedules: ChoreSchedule[],
-  readonly previous?: string[],
-  readonly history?: string[]
+  readonly previous?: string[][],
+  readonly history?: string
 }
 const markCompletedUrl = 'https://af20ym4v5b.execute-api.us-west-2.amazonaws.com/markChoreComplete'
 const previewExpectedUrl = 'https://af20ym4v5b.execute-api.us-west-2.amazonaws.com/previewExpected'
@@ -32,7 +29,7 @@ const credentialKey = 'USER_CREDENTIALS'
 
 async function getCacheableData<Type>(url: string, defaultValue: Type): Promise<Type> {
   try {
-    const resp = await fetch(url)
+    const resp = await fetch(url + '?v=' + Date.now())
     const data = await resp.json()
     localStorage.setItem(url, JSON.stringify(data))
     return data
@@ -161,8 +158,8 @@ export const useDataStore = defineStore('data', () => {
     const cred = response.credential
     credential.value = cred
 
-    const parsed = <GoogleJwt>decodeCredential(cred)
-    const expiry = (Date.now() - 60000) + (parsed.payload.exp - parsed.payload.iat)
+    const parsed = <GoogleJwtPayload>decodeCredential(cred)
+    const expiry = (Date.now() - 60000) + (parsed.exp - parsed.iat)
     localStorage.setItem(credentialKey, JSON.stringify({expiry, credential: cred}))
   }
 

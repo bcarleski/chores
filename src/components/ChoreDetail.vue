@@ -9,6 +9,14 @@ const chore = computed(() => store.currentChore)
 const markingChore = ref(false)
 const error: Ref<string | null> = ref(null)
 
+const previous = computed(() => {
+  if (chore.value?.previous) {
+    return chore.value.previous[0].join(', ')
+  }
+
+  return ''
+})
+
 function setError(message: string) {
   error.value = message
   setTimeout((err: Ref<string | null>) => err.value = null, 5000, error)
@@ -47,7 +55,7 @@ async function markChore(complete: boolean) {
         </div>
         <div v-if="chore?.previous">
           <div class="header">Previously:</div>
-          <div class="simple-detail">{{ chore.previous }}</div>
+          <div class="simple-detail">{{ previous }}</div>
         </div>
         <div v-if="chore?.history">
           <div class="header">History:</div>
@@ -79,62 +87,72 @@ async function markChore(complete: boolean) {
   margin-top: 50px;
   font-size: 9px;
 }
+
 .detail-item {
-    width: 90%;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 18px;
+  width: 90%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 18px;
 }
+
 .return {
-    height: 36px;
-    margin-bottom: 20px;
-    font-size: 20px;
-    text-align: left;
+  background-color: white;
+  height: 36px;
+  font-size: 20px;
+  text-align: left;
+  position: fixed;
+  top: 0;
 }
+
 .return div {
-    display: inline-block;
-    position: relative;
-    top: -4px;
-    color: #aaa;
+  display: inline-block;
+  position: relative;
+  top: -4px;
+  color: #aaa;
 }
+
 .return svg {
-    height: 24px;
-    width: 24px;
-    color: #aaa;
+  height: 24px;
+  width: 24px;
+  color: #aaa;
 }
+
 .attribute-item {
-    display:block;
-    position:relative;
-    padding: 20px 5px;
-    box-shadow:0 2px 0 -1px #ebebeb;
-    text-align: left;
+  display: block;
+  position: relative;
+  padding: 20px 5px;
+  box-shadow: 0 2px 0 -1px #ebebeb;
+  text-align: left;
 }
+
 .attribute-item .header {
-    display: inline-block;
-    width: 150px;
-    text-align: right;
-    font-weight: bold;
-    padding-right: 15px;
+  display: inline-block;
+  width: 150px;
+  text-align: right;
+  font-weight: bold;
+  padding-right: 15px;
+  vertical-align: top;
 }
+
 .attribute-item .simple-detail {
-    display: inline-block;
-    text-align: left;
+  display: inline-block;
+  text-align: left;
+  max-width: 500px;
 }
 
 button {
-    padding: 8px 12px;
-    font-size: 18px;
-    top: 8px;
-    left: 45px;
-    position: relative;
+  padding: 8px 12px;
+  font-size: 18px;
+  top: 8px;
+  left: 45px;
+  position: relative;
 }
 
 .spaced {
-    margin-left: 20px;
+  margin-left: 20px;
 }
 
 .error {
-    color: red
-}
-</style>
+  color: red
+}</style>

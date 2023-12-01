@@ -1,12 +1,11 @@
 const AWS = require('aws-sdk')
 const s3 = new AWS.S3()
-const regular = ['Ben','Kristopher','Phineas','Caroline']
-const reversed = [null, null, null, null]
 const validUsers = ['admin@carleski.com', 'benjamincarleski@gmail.com', 'katherine@carleski.com', 'katiecarleski@gmail.com']
-const baseDate = 1609567200000 // Friday, 5-Feb-2021, 10 PM Pacific Time, meaning we switch over if they pass off the chore after 10 PM on Friday night
+const baseDate = 1700287200000 // Friday, 17-Nov-2023, 10 PM Pacific Time, meaning we switch over if they pass off the chore after 10 PM on Friday night
 const oneWeek = 7 * 24 * 60 * 60 * 1000
 const bucket = 'chores-data'
-const key = 'chores.json'
+const choresS3Key = 'chores.json'
+const peopleS3Key = 'people.json'
 
 async function computeChores(user, choreId, preview, revert, asOfDate) {
     if (!preview) {
@@ -26,26 +25,26 @@ async function computeChores(user, choreId, preview, revert, asOfDate) {
     }
 
     try {
-        const content = await s3.getObject({Bucket:bucket, Key:key}).promise()
-        var chores = JSON.parse(content.Body)
+        const choresS3Content = await s3.getObject({Bucket:bucket, Key:choresS3Key}).promise()
+        var chores = JSON.parse(choresS3Content.Body)
+        const peopleS3Content = await s3.getObject({Bucket:bucket, Key:peopleS3Key}).promise()
+        var people = JSON.parse(peopleS3Content.Body)
     } catch (error) {
         console.log('Could not retrieve or parse the chores: ' + error)
         return { statusCode: 200, body: '{"success":false,"error":"Could not retrieve the chore data"}' }
     }
 
     const offset = Math.floor((asOfDate - baseDate) / oneWeek)
-    const expectedMap = {}
+    const expectedMap = {_offset:offset,_asOfDateValue:asOfDate,_baseDate:baseDate}
     var reason = null
 
     for (var i = 0; i < chores.length; i++) {
         let chore = chores[i]
 
         const reg = ((chores.length - (offset % chores.length)) + i) % chores.length
-        const rev = (offset + i + 4) % chores.length
 
         let assigningTo = []
-        if (regular.length > reg && regular[reg]) assigningTo.push(regular[reg])
-        if (reversed.length > rev && reversed[rev]) assigningTo.push(reversed[rev])
+        if (people.length > reg && people[reg]) assigningTo.push(people[reg])
 
         expectedMap[chore.id] = assigningTo
         chore.expected = assigningTo
@@ -77,7 +76,7 @@ async function computeChores(user, choreId, preview, revert, asOfDate) {
         }
 
         try {
-            await s3.putObject({Bucket:bucket, Key:key, Body: JSON.stringify(chores), ContentType: 'application/json'}).promise()
+            await s3.putObject({Bucket:bucket, Key:choresS3Key, Body: JSON.stringify(chores), ContentType: 'application/json'}).promise()
             console.log('Updated the chores')
         } catch (error) {
             console.log('Could not update the chores: ' + error)
