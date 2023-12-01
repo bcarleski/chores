@@ -1,5 +1,5 @@
-const AWS = require('aws-sdk')
-const s3 = new AWS.S3()
+const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3")
+const s3 = new S3Client({})
 const validUsers = ['admin@carleski.com', 'benjamincarleski@gmail.com', 'katherine@carleski.com', 'katiecarleski@gmail.com']
 const baseDate = 1700287200000 // Friday, 17-Nov-2023, 10 PM Pacific Time, meaning we switch over if they pass off the chore after 10 PM on Friday night
 const oneWeek = 7 * 24 * 60 * 60 * 1000
@@ -25,10 +25,10 @@ async function computeChores(user, choreId, preview, revert, asOfDate) {
     }
 
     try {
-        const choresS3Content = await s3.getObject({Bucket:bucket, Key:choresS3Key}).promise()
-        var chores = JSON.parse(choresS3Content.Body)
-        const peopleS3Content = await s3.getObject({Bucket:bucket, Key:peopleS3Key}).promise()
-        var people = JSON.parse(peopleS3Content.Body)
+        const choresS3Content = await s3.send(new GetObjectCommand({Bucket: bucket, Key: choresS3Key}))
+        var chores = JSON.parse(await choresS3Content.Body.transformToString())
+        const peopleS3Content = await s3.send(new GetObjectCommand({Bucket: bucket, Key: peopleS3Key}))
+        var people = JSON.parse(await peopleS3Content.Body.transformToString())
     } catch (error) {
         console.log('Could not retrieve or parse the chores: ' + error)
         return { statusCode: 200, body: '{"success":false,"error":"Could not retrieve the chore data"}' }
@@ -76,7 +76,7 @@ async function computeChores(user, choreId, preview, revert, asOfDate) {
         }
 
         try {
-            await s3.putObject({Bucket:bucket, Key:choresS3Key, Body: JSON.stringify(chores), ContentType: 'application/json'}).promise()
+            await s3.send(new PutObjectCommand({Bucket: bucket, Key: choresS3Key, Body: JSON.stringify(chores), ContentType: 'application/json'}))
             console.log('Updated the chores')
         } catch (error) {
             console.log('Could not update the chores: ' + error)
