@@ -159,7 +159,7 @@ export const useDataStore = defineStore('data', () => {
     credential.value = cred
 
     const parsed = <GoogleJwtPayload>decodeCredential(cred)
-    const expiry = (Date.now() - 60000) + (parsed.exp - parsed.iat)
+    const expiry = (Date.now() - 60000) + ((parsed.exp - parsed.iat) * 1000)
     localStorage.setItem(credentialKey, JSON.stringify({expiry, credential: cred}))
   }
 
