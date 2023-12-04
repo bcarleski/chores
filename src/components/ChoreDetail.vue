@@ -21,10 +21,10 @@ function setError(message: string) {
   error.value = message
   setTimeout((err: Ref<string | null>) => err.value = null, 5000, error)
 }
-async function markChore(complete: boolean) {
+async function markChore(complete: boolean, priorWeek: boolean) {
   markingChore.value = true
   try {
-    const resp = await store.markChore(complete)
+    const resp = await store.markChore(complete, priorWeek)
     if (!resp || resp.status >= 400) return setError(resp?.statusText || 'An unknown error has occured; please try again later')
     const data = await resp.json()
     if (!data || !data.success) return setError(data?.error || 'An unknown error has occured; please try again later')
@@ -66,12 +66,15 @@ async function markChore(complete: boolean) {
           <button v-if="store.loggedIn" @click="store.performGoogleLogout" class="spaced">
             Logout
           </button>
-          <button v-if="store.loggedIn" @click="markChore(true)" :disabled="markingChore" class="spaced">
+          <button v-if="store.loggedIn" @click="markChore(true, false)" :disabled="markingChore" class="spaced">
             Mark Complete
           </button>
-          <button v-if="store.loggedIn && chore?.previous" @click="markChore(false)" :disabled="markingChore"
+          <button v-if="store.loggedIn && chore?.previous" @click="markChore(false, false)" :disabled="markingChore"
             class="spaced">
             Mark Not Complete
+          </button>
+          <button v-if="store.loggedIn" @click="markChore(true, true)" :disabled="markingChore" class="spaced">
+            Mark Last Week Complete
           </button>
           <div v-if="error" class="error">{{ error }}</div>
         </div>

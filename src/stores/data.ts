@@ -26,6 +26,7 @@ const choresDataUrl = 'https://d28hmnnjtzs243.cloudfront.net/chores.json'
 const peopleDataUrl = 'https://d28hmnnjtzs243.cloudfront.net/people.json'
 const lastRefreshKey = 'LAST_REFRESH_TIME'
 const credentialKey = 'USER_CREDENTIALS'
+const oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000
 
 async function getCacheableData<Type>(url: string, defaultValue: Type): Promise<Type> {
   try {
@@ -142,10 +143,19 @@ export const useDataStore = defineStore('data', () => {
     }
   }
 
-  async function markChore(complete: boolean) : Promise<Response | null> {
+  async function markChore(complete: boolean, priorWeek: boolean) : Promise<Response | null> {
     const choreId = currentChore.value?.id
     const authToken = credential.value
     if (!choreId || !authToken) return null;
+
+    if (priorWeek) {
+      return await fetch(markCompletedUrl + '?' + new URLSearchParams({
+        revert: '' + !complete,
+        id: choreId,
+        token: authToken,
+        asOfDate: '' + (Date.now() - oneWeekInMilliseconds)
+      }))
+    }
 
     return await fetch(markCompletedUrl + '?' + new URLSearchParams({
       revert: '' + !complete,
