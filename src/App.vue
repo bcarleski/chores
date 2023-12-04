@@ -4,7 +4,8 @@ import { useDataStore } from '@/stores/data';
 import ChoreDetail from './components/ChoreDetail.vue';
 import ChoreList from './components/ChoreList.vue';
 
-const buildTimestamp = new Date().toLocaleString()
+const buildTimestampMillis = JSON.parse(BUILD_TIME_MILLIS)
+const buildTimestamp = new Date(buildTimestampMillis).toLocaleString()
 const store = useDataStore()
 onMounted(() => store.refresh())
 </script>
