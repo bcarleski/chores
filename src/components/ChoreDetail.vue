@@ -101,6 +101,7 @@ async function markChore(complete: boolean, priorWeek: boolean) {
 
 .return {
   background-color: white;
+  cursor: pointer;
   height: 36px;
   font-size: 20px;
   text-align: left;

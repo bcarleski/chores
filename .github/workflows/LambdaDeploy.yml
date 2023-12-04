@@ -21,19 +21,17 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
+      - uses: aws-actions/setup-sam@v1
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
 
-      - name: Install ZIP
-        uses: montudor/action-zip@v0.1.0
-      
-      - name: Create Package
-        run: zip -qq -r ./../../bundle.zip ./
+      - name: Build Package
+        run: sam build --use-container
         working-directory: ./lambda/markChoreComplete/
 
-      - name: Deploy Updated Code
-        uses: appleboy/lambda-action@master
-        with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: us-west-2
-          function_name: markChoreComplete
-          zip_file: bundle.zip
+      - name: Deploy Package
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name sam-mark-chore-complete --s3-bucket chores-data-sam-deploy-bucket --capabilities CAPABILITY_IAM --region us-west-2
+        working-directory: ./lambda/markChoreComplete/
