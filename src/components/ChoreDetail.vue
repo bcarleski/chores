@@ -61,7 +61,7 @@ async function markChore(complete: boolean, priorWeek: boolean) {
           <div class="header">History:</div>
           <div class="simple-detail">{{ chore.history }}</div>
         </div>
-        <div>
+        <div v-if="!chore?.isStatic">
           <GoogleLogin v-show="!store.loggedIn" :callback="store.handleGoogleLogin" prompt />
           <button v-if="store.loggedIn" @click="store.performGoogleLogout" class="spaced">
             Logout

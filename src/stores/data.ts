@@ -1,6 +1,8 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { decodeCredential, type CallbackTypes, googleLogout } from 'vue3-google-login'
+import { staticChores } from '@/stores/static';
+
 
 // Structure from https://developers.google.com/identity/gsi/web/reference/js-reference#CredentialResponse
 interface GoogleJwtPayload {
@@ -18,7 +20,8 @@ export interface Chore {
   readonly people: string[],
   readonly schedules: ChoreSchedule[],
   readonly previous?: string[][],
-  readonly history?: string
+  readonly history?: string,
+  readonly isStatic?: boolean
 }
 const markCompletedUrl = 'https://af20ym4v5b.execute-api.us-west-2.amazonaws.com/markChoreComplete'
 const previewExpectedUrl = 'https://af20ym4v5b.execute-api.us-west-2.amazonaws.com/previewExpected'
@@ -56,7 +59,7 @@ function getCachedCredentials() : string | null {
 }
 
 export const useDataStore = defineStore('data', () => {
-  const chores = ref<Chore[]>(getCachedData<Chore[]>(choresDataUrl, []))
+  const chores = ref<Chore[]>([...getCachedData<Chore[]>(choresDataUrl, []), ...staticChores])
   const people = ref<string[]>(getCachedData<string[]>(peopleDataUrl, []))
   const expectedPeople = ref<{[key: string]: string[]}>(getCachedData<{[key: string]: string[]}>(previewExpectedUrl, {}))
   const currentChoreIdx = ref(-1)
@@ -108,6 +111,7 @@ export const useDataStore = defineStore('data', () => {
 
       chores.value.splice(0, chores.value.length)
       chores.value.push(...newChores)
+      chores.value.push(...staticChores)
     } catch (e) {
       console.log('Could not refresh chores', e)
     }
@@ -145,8 +149,9 @@ export const useDataStore = defineStore('data', () => {
 
   async function markChore(complete: boolean, priorWeek: boolean) : Promise<Response | null> {
     const choreId = currentChore.value?.id
+    const isStatic = currentChore.value?.isStatic
     const authToken = credential.value
-    if (!choreId || !authToken) return null;
+    if (!choreId || !authToken || isStatic) return null;
 
     if (priorWeek) {
       return await fetch(markCompletedUrl + '?' + new URLSearchParams({
