@@ -1,0 +1,14 @@
+{
+  "name": "markChoresComplete",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --env-file=.env.local test.js",
+    "debug": "node --env-file=.env.local test.js debugLog",
+    "schedules": "node --env-file=.env.local printSchedules.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1016.0"
+  }
+}
