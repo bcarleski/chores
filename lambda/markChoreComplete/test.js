@@ -58,7 +58,7 @@ async function runUserTest(name, user, preview, expectedError) {
     const messages = [`Testing week 0 with asOfDate of ${new Date(asOfDate)}`]
     const body = await computeChores(user, 'dishes', preview, false, asOfDate, msg => logMessage(msg, messages), testGetS3, testUpdateChores);
 
-    if (!body || body.error || (preview && typeof body['_asOfDateValue'] === 'undefined')) {
+    if (!body || body.error) {
         if (persistedChores.length) return fail(messages, `UNEXPECTED PERSISTED CHORES: ${JSON.stringify(persistedChores, null, 2)}`)
         if (expectedError) {
             if (body?.error == expectedError) {
@@ -78,15 +78,15 @@ async function runUserTest(name, user, preview, expectedError) {
     successCount++;
 }
 
-async function runTest(name, week, choreId, preview, revert, expected) {
+async function runTest(name, week, choreId, preview, revert, expected, previewWeeks) {
     if (persistedChores.length) persistedChores.splice(0, persistedChores.length);
     const asOfDate = baseDate + (week * oneWeekInMillis);
     console.log(`Running test ${name}`);
 
     const messages = [`Testing week ${week} with asOfDate of ${new Date(asOfDate)}`]
-    const body = await computeChores('admin@carleski.com', choreId, preview, revert, asOfDate, msg => logMessage(msg, messages), testGetS3, testUpdateChores);
+    const body = await computeChores('admin@carleski.com', choreId, preview, revert, asOfDate, msg => logMessage(msg, messages), testGetS3, testUpdateChores, previewWeeks);
 
-    if (!body || body.error || (preview && typeof body['_asOfDateValue'] === 'undefined')) {
+    if (!body || body.error) {
         if (persistedChores.length) return fail(messages, `UNEXPECTED PERSISTED CHORES: ${JSON.stringify(persistedChores, null, 2)}`)
         return fail(messages, `BAD RESULT: ${JSON.stringify(body, null, 2)}`);
     }
@@ -95,6 +95,10 @@ async function runTest(name, week, choreId, preview, revert, expected) {
 
     if (preview) {
         if (persistedChores.length) return fail(messages, `UNEXPECTED PERSISTED CHORES: ${JSON.stringify(persistedChores, null, 2)}`)
+        if (previewWeeks) {
+            return body.length !== previewWeeks ? fail(messages, `INCORRECT NUMBER OF PREVIEW WEEKS: EXPECTED: ${previewWeeks}, ACTUAL: ${body.length}`) : ''
+        }
+
         if (body['_asOfDateValue'] !== asOfDate) return fail(messages, `UNEXPECTED AS-OF DATE: ${body['_asOfDateValue']}`)
 
         Object.getOwnPropertyNames(expected).forEach(choreId => {
@@ -144,6 +148,10 @@ async function runPreviewTest(name, week, expected) {
     await runTest(name, week, null, true, false, expected)
 }
 
+async function runMultiPreviewTest(name, weeks) {
+    await runTest(name, 0, null, true, false, null, weeks)
+}
+
 async function runRevertTest(name, week, choreId, expected) {
     await runTest(name, week, choreId, false, true, expected)
 }
@@ -159,6 +167,8 @@ await runPreviewTest('Preview Current', 0, {downstairs:['Phineas'], dishes:['Car
 await runPreviewTest('Preview Next', 1, {downstairs:['Kristopher'], dishes:['Phineas'], upstairs:['Caroline'], kitchen:['Ben']});
 await runPreviewTest('Preview Old', -154, {downstairs:['Ben'], dishes:['Kristopher'], upstairs:['Phineas'], kitchen:['Caroline']});
 await runPreviewTest('Preview Future', 151, {downstairs:['Caroline'], dishes:['Ben'], upstairs:['Kristopher'], kitchen:['Phineas']});
+
+await runMultiPreviewTest('Multi-preview', 4);
 
 await runRevertTest('Revert Dishes', 151, 'dishes', {dishes:{people:['Kristopher'],previous:[["Phineas"],["Kristopher"],["Ben"],["Phineas"]]}});
 
