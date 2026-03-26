@@ -62,7 +62,12 @@ function computeSingleExpected(asOfDate, chores, people, assignExpected) {
         const reg = ((chores.length - (offset % chores.length)) + i) % chores.length
 
         let assigningTo = []
-        if (people.length > reg && people[reg]) assigningTo.push(people[reg])
+        if (people.length > reg && people[reg]) {
+            let person = people[reg]
+            if (person === 'Mom and Dad') person = (offset % 6) < 3 ? 'Mom' : 'Dad'  // Alternate every 3 weeks
+
+            assigningTo.push(person)
+        }
 
         if (assignExpected) chore.expected = assigningTo
         expectedMap[chore.id] = assigningTo

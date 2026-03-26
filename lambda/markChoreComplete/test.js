@@ -29,6 +29,29 @@ async function testGetS3(objectKey) {
     return null;
 }
 
+async function momDadChores() {
+    return JSON.stringify([
+        {"title":"Downstairs","id":"downstairs","people":["Caroline"],"schedules":[],"expected":["Caroline"],"previous":[["Ben"],["Caroline"],["Phineas"],["Kristopher"],["Ben"]],"history":"admin@carleski.com marked the chore as completed by Ben on Sun Mar 15 2026 18:59:04 GMT+0000 (Coordinated Universal Time)"},
+        {"title":"Dishes","id":"dishes","people":["Mom"],"schedules":[],"expected":["Ben"],"previous":[["Phineas"],["Kristopher"],["Ben"],["Phineas"],["Kristopher"]],"history":"admin@carleski.com marked the chore as completed by Kristopher on Sat Mar 14 2026 22:07:13 GMT+0000 (Coordinated Universal Time)"},
+        {"title":"Upstairs","id":"upstairs","people":["Kristopher"],"schedules":[],"expected":["Kristopher"],"previous":[["Phineas"],["Kristopher"],["Ben"],["Caroline"],["Phineas"]],"history":"admin@carleski.com marked the chore as completed by Phineas on Fri Mar 20 2026 01:22:51 GMT+0000 (Coordinated Universal Time)"},
+        {"title":"Kitchen","id":"kitchen","people":["Phineas"],"schedules":[],"expected":["Phineas"],"previous":[["Caroline"],["Phineas"],["Kristopher"],["Ben"],["Caroline"]],"history":"admin@carleski.com marked the chore as completed by Caroline on Sat Mar 14 2026 22:07:16 GMT+0000 (Coordinated Universal Time)"}
+    ])
+}
+async function momDadPeople() {
+    return JSON.stringify([ "Mom and Dad", "Kristopher", "Phineas", "Caroline" ])
+}
+async function momDadGetS3(objectKey) {
+    if (objectKey === 'chores.json') {
+        return { Body: { transformToString: momDadChores } }
+    }
+
+    if (objectKey === 'people.json') {
+        return { Body: { transformToString: momDadPeople } }
+    }
+
+    return null;
+}
+
 async function testUpdateChores(content) {
     const chores = JSON.parse(JSON.stringify(content)) // Make a copy so future changes don't affect our saved copy
     persistedChores.push(chores)
@@ -78,13 +101,13 @@ async function runUserTest(name, user, preview, expectedError) {
     successCount++;
 }
 
-async function runTest(name, week, choreId, preview, revert, expected, previewWeeks) {
+async function runTest(name, week, choreId, preview, revert, expected, previewWeeks, logger, getS3, updateChores) {
     if (persistedChores.length) persistedChores.splice(0, persistedChores.length);
     const asOfDate = baseDate + (week * oneWeekInMillis);
     console.log(`Running test ${name}`);
 
     const messages = [`Testing week ${week} with asOfDate of ${new Date(asOfDate)}`]
-    const body = await computeChores('admin@carleski.com', choreId, preview, revert, asOfDate, msg => logMessage(msg, messages), testGetS3, testUpdateChores, previewWeeks);
+    const body = await computeChores('admin@carleski.com', choreId, preview, revert, asOfDate, logger || (msg => logMessage(msg, messages)), getS3 || testGetS3, updateChores || testUpdateChores, previewWeeks);
 
     if (!body || body.error) {
         if (persistedChores.length) return fail(messages, `UNEXPECTED PERSISTED CHORES: ${JSON.stringify(persistedChores, null, 2)}`)
@@ -96,19 +119,19 @@ async function runTest(name, week, choreId, preview, revert, expected, previewWe
     if (preview) {
         if (persistedChores.length) return fail(messages, `UNEXPECTED PERSISTED CHORES: ${JSON.stringify(persistedChores, null, 2)}`)
         if (previewWeeks) {
-            return body.length !== previewWeeks ? fail(messages, `INCORRECT NUMBER OF PREVIEW WEEKS: EXPECTED: ${previewWeeks}, ACTUAL: ${body.length}`) : ''
+            if (body.length !== previewWeeks) return fail(messages, `INCORRECT NUMBER OF PREVIEW WEEKS: EXPECTED: ${previewWeeks}, ACTUAL: ${body.length}`);
+        } else {
+            if (body['_asOfDateValue'] !== asOfDate) return fail(messages, `UNEXPECTED AS-OF DATE: ${body['_asOfDateValue']}`)
+
+            Object.getOwnPropertyNames(expected).forEach(choreId => {
+                const expectedPeople = JSON.stringify(expected[choreId])
+                const actualPeople = JSON.stringify(body[choreId])
+
+                if (expectedPeople != actualPeople) {
+                    failures[choreId] = {EXPECTED: expectedPeople, ACTUAL: actualPeople}
+                }
+            });
         }
-
-        if (body['_asOfDateValue'] !== asOfDate) return fail(messages, `UNEXPECTED AS-OF DATE: ${body['_asOfDateValue']}`)
-
-        Object.getOwnPropertyNames(expected).forEach(choreId => {
-            const expectedPeople = JSON.stringify(expected[choreId])
-            const actualPeople = JSON.stringify(body[choreId])
-
-            if (expectedPeople != actualPeople) {
-                failures[choreId] = {EXPECTED: expectedPeople, ACTUAL: actualPeople}
-            }
-        });
     } else {
         if (!persistedChores.length) return fail(messages, 'MISSING PERSISTED CHORES')
         if (persistedChores.length !== 1) return fail(messages, `TOO MANY PERSISTED CHORES: ${JSON.stringify(persistedChores, null, 2)}`)
@@ -148,6 +171,10 @@ async function runPreviewTest(name, week, expected) {
     await runTest(name, week, null, true, false, expected)
 }
 
+async function runMomDadTest(name, week, expected) {
+    await runTest(name, week, null, true, false, expected, undefined, undefined, momDadGetS3)
+}
+
 async function runMultiPreviewTest(name, weeks) {
     await runTest(name, 0, null, true, false, null, weeks)
 }
@@ -167,6 +194,10 @@ await runPreviewTest('Preview Current', 0, {downstairs:['Phineas'], dishes:['Car
 await runPreviewTest('Preview Next', 1, {downstairs:['Kristopher'], dishes:['Phineas'], upstairs:['Caroline'], kitchen:['Ben']});
 await runPreviewTest('Preview Old', -154, {downstairs:['Ben'], dishes:['Kristopher'], upstairs:['Phineas'], kitchen:['Caroline']});
 await runPreviewTest('Preview Future', 151, {downstairs:['Caroline'], dishes:['Ben'], upstairs:['Kristopher'], kitchen:['Phineas']});
+
+await runMomDadTest('Mom/Dad Last', -1, {downstairs:['Caroline'], dishes:['Mom'], upstairs:['Kristopher'], kitchen:['Phineas']});
+await runMomDadTest('Mom/Dad Current', 0, {downstairs:['Phineas'], dishes:['Caroline'], upstairs:['Mom'], kitchen:['Kristopher']});
+await runMomDadTest('Mom/Dad Next', 1, {downstairs:['Kristopher'], dishes:['Phineas'], upstairs:['Caroline'], kitchen:['Dad']});
 
 await runMultiPreviewTest('Multi-preview', 4);
 
