@@ -5,14 +5,12 @@ Resources:
   markChoreComplete:
     Type: 'AWS::Serverless::Function'
     Properties:
+      FunctionName: markChoreComplete
       Handler: index.handler
-      Runtime: nodejs20.x
+      Runtime: nodejs24.x
       CodeUri: .
       Description: ''
       MemorySize: 128
       Timeout: 3
       Role: >-
         arn:aws:iam::439188974788:role/service-role/markChoreComplete-role-bichv02b
-      Environment:
-        Variables:
-          DRONE_COMMIT: 200d818207c542e4773ddcde49d1fc595eed0a40
