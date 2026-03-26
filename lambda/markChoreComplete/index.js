@@ -54,7 +54,7 @@ async function getChoresAndPeople(logger, getS3) {
 
 function computeSingleExpected(asOfDate, chores, people, assignExpected) {
     const offset = Math.floor((asOfDate - baseDate) / oneWeek)
-    const expectedMap = {_offset:offset,_asOfDateValue:asOfDate,_baseDate:baseDate,_asOfDate:new Date(asOfDate).toISOString()}
+    const expectedMap = {_offset:offset,_baseDateValue:baseDate,_baseDate:new Date(baseDate).toISOString(),_asOfDateValue:asOfDate,_asOfDate:new Date(asOfDate).toISOString()}
 
     for (var i = 0; i < chores.length; i++) {
         let chore = chores[i]
