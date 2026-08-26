@@ -64,7 +64,8 @@ function computeSingleExpected(asOfDate, chores, people, assignExpected) {
         let assigningTo = []
         if (people.length > reg && people[reg]) {
             let person = people[reg]
-            if (person === 'Mom and Dad') person = (offset % 6) < 3 ? 'Mom' : 'Dad'  // Alternate every 3 weeks
+            if (person === 'Mom and Dad' || person === 'Mom' || person === 'Dad')
+                person = (offset % 6) < 3 ? 'Dad' : 'Mom'  // Alternate every 3 weeks
 
             assigningTo.push(person)
         }
